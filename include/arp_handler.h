@@ -4,7 +4,7 @@
 #include <rte_mbuf.h>
 
 // ARP处理函数
-int handle_arp_packet(struct rte_mbuf *pkt, uint16_t port_id);
+int handle_arp_packet(struct rte_mempool *endsys_pktmbuf_pool,struct rte_mbuf *pkt, uint16_t port_id);
 
 // 初始化ARP处理器
 int init_arp_handler(const char *ip_addr);

@@ -17,7 +17,7 @@ int init_arp_handler(const char *ip_addr) {
     return 0;
 }
 
-int handle_arp_packet(struct rte_mbuf *pkt, uint16_t port_id) {
+int handle_arp_packet(struct rte_mempool *endsys_pktmbuf_pool,struct rte_mbuf *pkt, uint16_t port_id) {
     struct rte_ether_hdr *eth_hdr;
     struct rte_arp_hdr *arp_hdr;
     struct rte_mbuf *arp_reply;
@@ -41,12 +41,15 @@ int handle_arp_packet(struct rte_mbuf *pkt, uint16_t port_id) {
     }
 
     // 分配新的mbuf用于ARP响应
-    arp_reply = rte_pktmbuf_alloc(rte_pktmbuf_pool_create("ARP_POOL", 8191, 0, 0, 
-                                 RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id()));
+    arp_reply = rte_pktmbuf_alloc(endsys_pktmbuf_pool);
     if (arp_reply == NULL) {
         rte_pktmbuf_free(pkt);
         return -1;
     }
+    // 计算总长度
+    uint16_t total_length = sizeof(struct rte_ether_hdr) + sizeof(struct rte_arp_hdr);
+    arp_reply->data_len = total_length;
+    arp_reply -> pkt_len = total_length; 
 
     // 构建以太网头
     reply_eth_hdr = rte_pktmbuf_mtod(arp_reply, struct rte_ether_hdr *);

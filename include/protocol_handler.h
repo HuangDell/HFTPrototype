@@ -6,7 +6,7 @@
 #include <rte_udp.h>
 
 // 协议处理函数的类型定义
-typedef int (*protocol_handler_fn)(struct rte_mbuf *pkt, uint16_t port_id);
+typedef int (*protocol_handler_fn)(struct rte_mempool *endsys_pktmbuf_pool,struct rte_mbuf *pkt, uint16_t port_id);
 
 // 协议处理器结构体
 struct protocol_handler {
@@ -18,7 +18,7 @@ struct protocol_handler {
 int register_protocol_handler(uint16_t type, protocol_handler_fn handler);
 
 // 处理数据包
-int process_packet(struct rte_mbuf *pkt, uint16_t port_id);
+int process_packet(struct rte_mempool *endsys_pktmbuf_pool,struct rte_mbuf *pkt, uint16_t port_id);
 
 // 初始化协议处理系统
 int init_protocol_handlers(void);

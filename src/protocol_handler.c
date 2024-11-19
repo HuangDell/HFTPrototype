@@ -20,7 +20,7 @@ int register_protocol_handler(uint16_t type, protocol_handler_fn handler) {
     return 0;
 }
 
-int process_packet(struct rte_mbuf *pkt, uint16_t port_id) {
+int process_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf *pkt, uint16_t port_id) {
     struct rte_ether_hdr *eth_hdr;
     int i;
 
@@ -29,7 +29,7 @@ int process_packet(struct rte_mbuf *pkt, uint16_t port_id) {
     // 遍历所有注册的处理器
     for (i = 0; i < num_handlers; i++) {
         if (handlers[i].type == rte_be_to_cpu_16(eth_hdr->ether_type)) {
-            return handlers[i].handler(pkt, port_id);
+            return handlers[i].handler(endsys_pktmbuf_pool,pkt, port_id);
         }
     }
 

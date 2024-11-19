@@ -4,7 +4,7 @@
 #include <rte_mbuf.h>
 
 // UDP处理函数
-int handle_udp_packet(struct rte_mbuf *pkt, uint16_t port_id);
+int handle_udp_packet(struct rte_mempool *endsys_pktmbuf_pool,struct rte_mbuf *pkt, uint16_t port_id);
 
 // 初始化UDP处理器
 int init_udp_handler(const char *ip_addr);

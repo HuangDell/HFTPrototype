@@ -18,7 +18,7 @@ int init_udp_handler(const char *ip_addr) {
     return 0;
 }
 
-int handle_udp_packet(struct rte_mbuf *pkt, uint16_t port_id) {
+int handle_udp_packet(struct rte_mempool *endsys_pktmbuf_pool,struct rte_mbuf *pkt, uint16_t port_id) {
     struct rte_ether_hdr *eth_hdr;
     struct rte_ipv4_hdr *ip_hdr;
     struct rte_udp_hdr *udp_hdr;
@@ -41,12 +41,15 @@ int handle_udp_packet(struct rte_mbuf *pkt, uint16_t port_id) {
     }
 
     // 分配新的mbuf用于UDP响应
-    udp_reply = rte_pktmbuf_alloc(rte_pktmbuf_pool_create("UDP_POOL", 8191, 0, 0,
-                                 RTE_MBUF_DEFAULT_BUF_SIZE, rte_socket_id()));
+    udp_reply = rte_pktmbuf_alloc(endsys_pktmbuf_pool);
     if (udp_reply == NULL) {
         rte_pktmbuf_free(pkt);
         return -1;
     }
+    // 计算总长度
+    uint16_t total_length = sizeof(struct rte_ether_hdr) + sizeof(struct rte_ipv4_hdr) + sizeof(struct rte_udp_hdr);
+    udp_reply->data_len = total_length;
+    udp_reply->pkt_len = total_length;
 
     // 构建以太网头
     reply_eth_hdr = rte_pktmbuf_mtod(udp_reply, struct rte_ether_hdr *);
