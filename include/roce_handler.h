@@ -2,13 +2,17 @@
 #define ROCE_HANDLER_H
 #include <rte_mbuf.h>
 
-#define RTE_ETHER_TYPE_ROCE 0x8915 
 #define RTE_ETHER_TYPE_CTL 0x8808
 // 100Gbps 的quanta大小为5.12ns
 #define QUANTA_DURATION_NS 5.12
 // 单位 ns
-#define STOP_TIME 1000
+#define STOP_TIME 10000
 
+static uint32_t local_ip;
+static uint64_t last_timestamp;
+static uint64_t time_gap;
+
+static struct rte_ether_addr local_mac;
 struct pfc_header
 {
     uint16_t opcode;

@@ -42,11 +42,11 @@ static int port_init(uint16_t port) {
                 port, strerror(-retval));
         return retval;
     }
-    dev_info.default_rxconf.offloads |= RTE_ETH_RX_OFFLOAD_UDP_CKSUM;  
-    dev_info.default_txconf.offloads |= RTE_ETH_TX_OFFLOAD_UDP_CKSUM;  
+    // dev_info.default_rxconf.offloads |= RTE_ETH_RX_OFFLOAD_UDP_CKSUM;  
+    // dev_info.default_txconf.offloads |= RTE_ETH_TX_OFFLOAD_UDP_CKSUM;  
 
-    if (dev_info.tx_offload_capa & RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE)
-        port_conf.txmode.offloads |= RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE;
+    // if (dev_info.tx_offload_capa & RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE)
+    //     port_conf.txmode.offloads |= RTE_ETH_TX_OFFLOAD_MBUF_FAST_FREE;
 
     /* Configure the Ethernet device */
     retval = rte_eth_dev_configure(port, rx_rings, tx_rings, &port_conf);
@@ -138,13 +138,13 @@ static void packet_processing_loop(void) {
 
         // 处理接收到的每个数据包
         for (i = 0; i < nb_rx; i++) {
-            eth_hdr = rte_pktmbuf_mtod(pkts_burst[i], struct rte_ether_hdr *);
-            /* Format MAC addresses */
-            rte_ether_format_addr(src_mac, RTE_ETHER_ADDR_FMT_SIZE, &eth_hdr->src_addr);
-            rte_ether_format_addr(dst_mac, RTE_ETHER_ADDR_FMT_SIZE, &eth_hdr->dst_addr);
-            printf("\nPacket %d:\n", pkg_counter++);
-            printf("  MAC: %s -> %s\n", src_mac, dst_mac);
-            printf("  Ether Type: 0x%04x\n", rte_be_to_cpu_16(eth_hdr->ether_type));
+            // eth_hdr = rte_pktmbuf_mtod(pkts_burst[i], struct rte_ether_hdr *);
+            // /* Format MAC addresses */
+            // rte_ether_format_addr(src_mac, RTE_ETHER_ADDR_FMT_SIZE, &eth_hdr->src_addr);
+            // rte_ether_format_addr(dst_mac, RTE_ETHER_ADDR_FMT_SIZE, &eth_hdr->dst_addr);
+            // printf("\nPacket %d:\n", pkg_counter++);
+            // printf("  MAC: %s -> %s\n", src_mac, dst_mac);
+            // printf("  Ether Type: 0x%04x\n", rte_be_to_cpu_16(eth_hdr->ether_type));
 
             process_packet(mbuf_pool,pkts_burst[i], port);
             rte_pktmbuf_free(pkts_burst[i]);

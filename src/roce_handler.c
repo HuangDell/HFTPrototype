@@ -4,12 +4,12 @@
 #include <rte_ethdev.h>
 #include <rte_udp.h>
 
-static uint32_t local_ip;
-static struct rte_ether_addr local_mac;
 
 /* pfc packet header within eth hdr */
 int init_roce_handler(const char *ip_addr)
 {
+    last_timestamp=0;
+    time_gap=1760;  // 1760ns=1.76us
     if (inet_pton(AF_INET, ip_addr, &local_ip) != 1) {  
         return -1;  
     }  
@@ -22,7 +22,6 @@ int init_roce_handler(const char *ip_addr)
 int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf *pkt, uint16_t port_id)
 {
     struct rte_ether_hdr *eth_hdr;  
-    struct roce_header *roce_hdr;  
     struct rte_mbuf *roce_response;
     struct rte_ether_hdr *response_eth_hdr;
     struct rte_ipv4_hdr *ipv4_hdr;
@@ -39,7 +38,6 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
 
     // 跳过TCP包
     if (ipv4_hdr->next_proto_id==IPPROTO_TCP){
-        printf("It is a TCP\n");
         return -1;
     }
 
@@ -48,16 +46,23 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
                                           sizeof(struct rte_ipv4_hdr));
 
     // 跳过非RoCE包
-    // if (rte_be_to_cpu_16(udp_hdr->dst_port) != 4791) {  
-    //     return -1;    // 是4791端口  
-    // }  
-    printf("It is a RoCE\n");
+    if (rte_be_to_cpu_16(udp_hdr->src_port) != 4791) {  
+        return -1;    // 是4791端口  
+    }  
+    const uint8_t *addr = eth_hdr->src_addr.addr_bytes;  
 
-    roce_hdr = rte_pktmbuf_mtod_offset(pkt, struct roce_header *,
-                                       sizeof(struct rte_ether_hdr) +
-                                           sizeof(struct rte_ipv4_hdr) +
-                                           sizeof(struct rte_udp_hdr));
+    // 将6字节MAC地址转换为uint64_t  
+    uint64_t cur_timestamp = ((uint64_t)addr[0] << 40) |  
+                    ((uint64_t)addr[1] << 32) |  
+                    ((uint64_t)addr[2] << 24) |  
+                    ((uint64_t)addr[3] << 16) |  
+                    ((uint64_t)addr[4] << 8)  |  
+                    ((uint64_t)addr[5]);  
 
+    if(cur_timestamp-last_timestamp<time_gap){
+        return 0;
+    }
+    last_timestamp=cur_timestamp;
 
     // 分配新的mbuf用于RoCE响应  
     roce_response = rte_pktmbuf_alloc(endsys_pktmbuf_pool);  
@@ -71,9 +76,15 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
     roce_response->data_len = total_length;  
     roce_response->pkt_len = total_length;  
 
-    // 构建以太网头部  
     response_eth_hdr = rte_pktmbuf_mtod(roce_response, struct rte_ether_hdr *);  
-    rte_ether_addr_copy(&eth_hdr->src_addr, &response_eth_hdr->dst_addr);  
+
+    // 设置目标MAC地址为 01-80-C2-00-00-01  
+    struct rte_ether_addr dst_mac;  
+    rte_ether_unformat_addr("01:80:C2:00:00:01", &dst_mac);  
+    rte_ether_addr_copy(&dst_mac, &response_eth_hdr->dst_addr);  
+
+
+    // 设置源MAC地址  
     rte_ether_addr_copy(&local_mac, &response_eth_hdr->src_addr);  
     response_eth_hdr->ether_type = htons(RTE_ETHER_TYPE_CTL);  
 
@@ -93,8 +104,8 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
         rte_pktmbuf_free(roce_response);  
         printf("RoCE Response Send Failed.\n");  
     }  
-    printf("PFC send.");
     rte_pktmbuf_free(pkt);  
+    printf("A PFC Send");
 
     return 0;  
 }
