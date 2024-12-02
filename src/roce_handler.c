@@ -9,7 +9,6 @@
 int init_roce_handler(const char *ip_addr)
 {
     last_timestamp=0;
-    time_gap=1760;  // 1760ns=1.76us
     if (inet_pton(AF_INET, ip_addr, &local_ip) != 1) {  
         return -1;  
     }  
@@ -59,7 +58,7 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
                     ((uint64_t)addr[4] << 8)  |  
                     ((uint64_t)addr[5]);  
 
-    if(cur_timestamp-last_timestamp<time_gap){
+    if(cur_timestamp-last_timestamp<TIME_GAP || cur_timestamp-last_timestamp>FLOWLET_TIMEOUT){
         return 0;
     }
     last_timestamp=cur_timestamp;
@@ -80,7 +79,7 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
 
     // 设置目标MAC地址为 01-80-C2-00-00-01  
     struct rte_ether_addr dst_mac;  
-    rte_ether_unformat_addr("01:80:C2:00:00:01", &dst_mac);  
+    rte_ether_unformat_addr("e8:eb:d3:58:a0:2c", &dst_mac);  
     rte_ether_addr_copy(&dst_mac, &response_eth_hdr->dst_addr);  
 
 
@@ -105,7 +104,7 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
         printf("RoCE Response Send Failed.\n");  
     }  
     rte_pktmbuf_free(pkt);  
-    printf("A PFC Send");
+    printf("A PFC Send\n");
 
     return 0;  
 }

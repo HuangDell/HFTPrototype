@@ -6,7 +6,11 @@
 // 100Gbps 的quanta大小为5.12ns
 #define QUANTA_DURATION_NS 5.12
 // 单位 ns
-#define STOP_TIME 10000
+#define STOP_TIME 500
+
+#define FLOWLET_TIMEOUT 7500
+
+#define TIME_GAP 7000
 
 static uint32_t local_ip;
 static uint64_t last_timestamp;

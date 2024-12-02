@@ -184,8 +184,13 @@ int main(int argc, char *argv[]) {
         rte_exit(EXIT_FAILURE, "Cannot initialize ARP handler\n");
 
     /* Initialize UDP handler */
-    if (init_udp_handler(LOCAL_IP) != 0)  // 设置本机IP地址
+    // if (init_udp_handler(LOCAL_IP) != 0)  // 设置本机IP地址
+    //     rte_exit(EXIT_FAILURE, "Cannot initialize UDP handler\n");
+    
+    /* Initialize ROCE handler */
+    if (init_roce_handler(LOCAL_IP) != 0)  // 设置本机IP地址
         rte_exit(EXIT_FAILURE, "Cannot initialize UDP handler\n");
+
 
     /* Register protocol handlers */
     register_protocol_handler(RTE_ETHER_TYPE_ARP, handle_arp_packet);
