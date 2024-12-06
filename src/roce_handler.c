@@ -61,6 +61,8 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
     if(cur_timestamp-last_timestamp<TIME_GAP || cur_timestamp-last_timestamp>FLOWLET_TIMEOUT){
         return 0;
     }
+    uint16_t stop_time = 1+FLOWLET_TIMEOUT-(cur_timestamp-last_timestamp);
+    printf("stop_time: %d\n",stop_time);
     last_timestamp=cur_timestamp;
 
     // 分配新的mbuf用于RoCE响应  
@@ -79,7 +81,7 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
 
     // 设置目标MAC地址为 01-80-C2-00-00-01  
     struct rte_ether_addr dst_mac;  
-    rte_ether_unformat_addr("e8:eb:d3:58:a0:2c", &dst_mac);  
+    rte_ether_unformat_addr("01:80:c2:00:00:01", &dst_mac);  
     rte_ether_addr_copy(&dst_mac, &response_eth_hdr->dst_addr);  
 
 
@@ -92,7 +94,7 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
     pfc_hdr->opcode = htons(0x0101);
     pfc_hdr->pev = htons(0x00ff);
     for(int i=0;i<8;i++)
-        pfc_hdr->time[i] = htons((uint16_t)(STOP_TIME/QUANTA_DURATION_NS));
+        pfc_hdr->time[i] = htons((uint16_t)(stop_time/QUANTA_DURATION_NS));
 
     // pfc_hdr->time[0] = 1;
     for(int i=0;i<26;i++)
