@@ -50,46 +50,51 @@ class BandwidthAnalyzer:
             'iqr': np.percentile(data, 75) - np.percentile(data, 25)
         }
 
-    def create_boxplot(self, data: np.ndarray, stats: Dict):  
-        """创建箱线图和统计信息"""  
-        plt.figure(figsize=(10, 6))  
+    def create_boxplot(self, data: np.ndarray, stats: Dict):
+        """创建箱线图和统计信息"""
+        # 创建图形和轴对象
+        fig, ax = plt.subplots(figsize=(10, 6))
         
-        # 创建箱线图  
-        ax = sns.boxplot(data=data)  
-        ax.set_title('Bandwidth Average Distribution')  
-        ax.set_ylabel('MB/sec')  
+        # 创建箱线图
+        sns.boxplot(data=data, ax=ax)
+        ax.set_title('Bandwidth Average Distribution')
+        ax.set_ylabel('MB/sec')
         
-        # 在右上角添加统计信息  
-        stats_text = "\n".join([  
-            f"Statistical Analysis:",  
-            f"Mean: {stats['mean']:.2f}",  
-            f"Median: {stats['median']:.2f}",  
-            f"Std Dev: {stats['std']:.2f}",  
-            f"Min: {stats['min']:.2f}",  
-            f"Max: {stats['max']:.2f}",  
-            f"Q1: {stats['q1']:.2f}",  
-            f"Q3: {stats['q3']:.2f}",  
-            f"IQR: {stats['iqr']:.2f}"  
-        ])  
+        # 准备统计信息文本
+        stats_text = "\n".join([
+            f"Statistical Analysis:",
+            f"Mean: {stats['mean']:.2f}",
+            f"Median: {stats['median']:.2f}",
+            f"Std Dev: {stats['std']:.2f}",
+            f"Min: {stats['min']:.2f}",
+            f"Max: {stats['max']:.2f}",
+            f"Q1: {stats['q1']:.2f}",
+            f"Q3: {stats['q3']:.2f}",
+            f"IQR: {stats['iqr']:.2f}"
+        ])
         
-        # 获取图表的边界框  
-        bbox = ax.get_position()  
+        # 在右上角添加文本框
+        # 使用轴的变换来确保文本位置正确
+        ax.text(1.02, 0.98, stats_text,
+                transform=ax.transAxes,  # 使用轴的相对坐标系统
+                fontsize=9,
+                verticalalignment='top',
+                horizontalalignment='left',
+                bbox=dict(facecolor='white', 
+                        alpha=0.8, 
+                        edgecolor='lightgray',
+                        boxstyle='round,pad=0.5'))
         
-        # 在右上角添加文本框  
-        plt.text(bbox.x1 + 0.02, bbox.y1, stats_text,  
-                fontsize=9,  
-                verticalalignment='top',  
-                bbox=dict(facecolor='white', alpha=0.8, edgecolor='none', pad=5))  
+        # 添加标题
+        plt.suptitle(f'Bandwidth Analysis (ft={self.ft_value}, thre={self.thre_value}, {self.version})')
         
-        # 添加标题  
-        plt.suptitle(f'Bandwidth Analysis (ft={self.ft_value}, thre={self.thre_value}, {self.version})')  
+        # 调整布局以确保统计信息可见
+        plt.tight_layout()
+        plt.subplots_adjust(right=0.85)  # 为右侧文本留出空间
         
-        # 调整布局以确保统计信息可见  
-        plt.subplots_adjust(right=0.85)  
-        
-        # 保存图片  
-        plt.savefig(self.png_file, dpi=300, bbox_inches='tight')  
-        plt.close()  
+        # 保存图片
+        plt.savefig(self.png_file, dpi=300, bbox_inches='tight')
+        plt.close()
 
     def process_data(self):
         """主处理函数"""
