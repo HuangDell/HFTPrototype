@@ -50,51 +50,95 @@ class BandwidthAnalyzer:
             'iqr': np.percentile(data, 75) - np.percentile(data, 25)
         }
 
-    def create_boxplot(self, data: np.ndarray, stats: Dict):
-        """创建箱线图和统计信息"""
-        # 创建图形和轴对象
-        fig, ax = plt.subplots(figsize=(10, 6))
+    def create_boxplot(self, data: np.ndarray, stats: Dict):  
+        """创建美化版箱线图和统计信息"""  
+        # 设置 seaborn 样式  
+        sns.set_style("whitegrid")  # 设置网格背景样式  
+        sns.set_palette("husl")     # 设置调色板  
         
-        # 创建箱线图
-        sns.boxplot(data=data, ax=ax)
-        ax.set_title('Bandwidth Average Distribution')
-        ax.set_ylabel('MB/sec')
+        # 创建图形和轴对象  
+        fig, ax = plt.subplots(figsize=(10, 6))  
         
-        # 准备统计信息文本
-        stats_text = "\n".join([
-            f"Statistical Analysis:",
-            f"Mean: {stats['mean']:.2f}",
-            f"Median: {stats['median']:.2f}",
-            f"Std Dev: {stats['std']:.2f}",
-            f"Min: {stats['min']:.2f}",
-            f"Max: {stats['max']:.2f}",
-            f"Q1: {stats['q1']:.2f}",
-            f"Q3: {stats['q3']:.2f}",
-            f"IQR: {stats['iqr']:.2f}"
-        ])
+        # 创建美化的箱线图  
+        sns.boxplot(data=data,   
+                    ax=ax,  
+                    width=0.5,                # 设置箱体宽度  
+                    fliersize=5,              # 设置异常值点的大小  
+                    linewidth=2,              # 设置线条宽度  
+                    color='skyblue',          # 设置箱体颜色  
+                    flierprops={'markerfacecolor': 'red',    # 异常值点的颜色  
+                            'marker': 'o',                 # 异常值点的形状  
+                            'markeredgecolor': 'darkred'}, # 异常值点边框颜色  
+                    medianprops={'color': 'red',             # 中位数线的颜色  
+                                'linewidth': 2},              # 中位数线的宽度  
+                    boxprops={'facecolor': 'skyblue',        # 箱体填充颜色  
+                            'alpha': 0.7},                   # 箱体透明度  
+                    whiskerprops={'color': 'darkblue',       # 须线颜色  
+                                'linewidth': 2},             # 须线宽度  
+                    capprops={'color': 'darkblue',           # 须线末端颜色  
+                            'linewidth': 2})                 # 须线末端宽度  
         
-        # 在右上角添加文本框
-        # 使用轴的变换来确保文本位置正确
-        ax.text(1.02, 0.98, stats_text,
-                transform=ax.transAxes,  # 使用轴的相对坐标系统
-                fontsize=9,
-                verticalalignment='top',
-                horizontalalignment='left',
-                bbox=dict(facecolor='white', 
-                        alpha=0.8, 
-                        edgecolor='lightgray',
-                        boxstyle='round,pad=0.5'))
+        # 设置坐标轴标签和标题  
+        ax.set_title('Bandwidth Average Distribution',   
+                    fontsize=14,   
+                    pad=20,  
+                    fontweight='bold')  
+        ax.set_ylabel('Bandwidth (MB/sec)',   
+                    fontsize=12,   
+                    fontweight='bold')  
         
-        # 添加标题
-        plt.suptitle(f'Bandwidth Analysis (ft={self.ft_value}, thre={self.thre_value}, {self.version})')
+        # 美化坐标轴  
+        ax.tick_params(axis='both', labelsize=10)  
+        ax.spines['top'].set_visible(False)    # 隐藏上边框  
+        ax.spines['right'].set_visible(False)  # 隐藏右边框  
         
-        # 调整布局以确保统计信息可见
-        plt.tight_layout()
-        plt.subplots_adjust(right=0.85)  # 为右侧文本留出空间
+        # 添加水平参考线  
+        ax.yaxis.grid(True, linestyle='--', alpha=0.7)  
         
-        # 保存图片
-        plt.savefig(self.png_file, dpi=300, bbox_inches='tight')
-        plt.close()
+        # 准备统计信息文本  
+        stats_text = "\n".join([  
+            f"📊 Statistical Analysis:",  
+            f"━━━━━━━━━━━━━━━━━━",  
+            f"Mean: {stats['mean']:.2f}",  
+            f"Median: {stats['median']:.2f}",  
+            f"Std Dev: {stats['std']:.2f}",  
+            f"━━━━━━━━━━━━━━━━━━",  
+            f"Min: {stats['min']:.2f}",  
+            f"Max: {stats['max']:.2f}",  
+            f"Q1: {stats['q1']:.2f}",  
+            f"Q3: {stats['q3']:.2f}",  
+            f"IQR: {stats['iqr']:.2f}"  
+        ])  
+        
+        # 在右上角添加美化的文本框  
+        ax.text(0.98, 0.98, stats_text,  
+                transform=ax.transAxes,  
+                fontsize=10,  
+                verticalalignment='top',  
+                horizontalalignment='left',  
+                bbox=dict(facecolor='white',  
+                        alpha=0.9,  
+                        edgecolor='lightgray',  
+                        boxstyle='round,pad=0.8',  
+                        shadow=True))  
+        
+        # # 添加主标题  
+        # plt.suptitle(f'Bandwidth Performance Analysis\n(ft={self.ft_value}, thre={self.thre_value}, {self.version})',  
+        #             fontsize=16,  
+        #             fontweight='bold',  
+        #             y=1.05)  
+        
+        # 调整布局  
+        plt.tight_layout()  
+        # plt.subplots_adjust(right=0.85, top=0.88)  
+        
+        # 保存高质量图片  
+        plt.savefig(self.png_file,   
+                    dpi=300,   
+                    bbox_inches='tight',  
+                    facecolor='white',  
+                    edgecolor='none')  
+        plt.close()  
 
     def process_data(self):
         """主处理函数"""
@@ -124,9 +168,9 @@ class BandwidthAnalyzer:
             print(f"{key}: {value:.2f}")
 
 # 设置参数
-ft_value = 1
-thre_value = 2
-version = "v1"
+ft_value = 7500 # 可以根据需要修改
+thre_value = 0  # 可以根据需要修改
+version = "v0"  # 可以根据需要修改
 
 # 使用示例
 if __name__ == "__main__":
