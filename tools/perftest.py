@@ -4,17 +4,26 @@ import time
 import socket
 from datetime import datetime
 
-# 设置应用程序和日志文件路径
-APP_PATH = "ib_send_bw"
-LOG_FILE = "./run_q8_pfc.log"
-
 # 设置参数
 MAX_RESTARTS = 30
 REPEAT_COUNT = 10000  # -n 参数的值
 restart_count = 0
 
+# 文件名参数
+ft_value = 1  # 可以根据需要修改
+thre_value = 2  # 可以根据需要修改
+version = "v1"  # 可以根据需要修改
+
+
+RESOURCES_DIR = "./resources/prototype"  
+FILENAME = f"prototype_ft_{ft_value}_thre_{thre_value}_{version}.log"
+LOG_FILE = os.path.join(RESOURCES_DIR, FILENAME)  
+
 # 获取主机名
 hostname = socket.gethostname()
+
+# 创建resources目录（如果不存在）  
+os.makedirs(RESOURCES_DIR, exist_ok=True)  
 
 # 删除已存在的日志文件并创建新的
 if os.path.exists(LOG_FILE):
@@ -23,6 +32,7 @@ open(LOG_FILE, 'a').close()
 
 print(f"Starting application monitor... Maximum restarts: {MAX_RESTARTS}")
 print(f"Current hostname: {hostname}")
+print(f"Log file: {LOG_FILE}")
 
 while restart_count < MAX_RESTARTS:
     # 根据主机名构建不同的命令
