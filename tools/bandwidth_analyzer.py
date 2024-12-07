@@ -50,42 +50,46 @@ class BandwidthAnalyzer:
             'iqr': np.percentile(data, 75) - np.percentile(data, 25)
         }
 
-    def create_boxplot(self, data: np.ndarray, stats: Dict):
-        """创建箱线图和统计信息"""
-        plt.figure(figsize=(12, 8))
+    def create_boxplot(self, data: np.ndarray, stats: Dict):  
+        """创建箱线图和统计信息"""  
+        plt.figure(figsize=(10, 6))  
         
-        # 创建两个子图
-        gs = plt.GridSpec(1, 2, width_ratios=[2, 1])
+        # 创建箱线图  
+        ax = sns.boxplot(data=data)  
+        ax.set_title('Bandwidth Average Distribution')  
+        ax.set_ylabel('MB/sec')  
         
-        # 箱线图
-        ax1 = plt.subplot(gs[0])
-        sns.boxplot(data=data, ax=ax1)
-        ax1.set_title('Bandwidth Average Distribution')
-        ax1.set_ylabel('MB/sec')
+        # 在右上角添加统计信息  
+        stats_text = "\n".join([  
+            f"Statistical Analysis:",  
+            f"Mean: {stats['mean']:.2f}",  
+            f"Median: {stats['median']:.2f}",  
+            f"Std Dev: {stats['std']:.2f}",  
+            f"Min: {stats['min']:.2f}",  
+            f"Max: {stats['max']:.2f}",  
+            f"Q1: {stats['q1']:.2f}",  
+            f"Q3: {stats['q3']:.2f}",  
+            f"IQR: {stats['iqr']:.2f}"  
+        ])  
         
-        # 统计信息
-        ax2 = plt.subplot(gs[1])
-        ax2.axis('off')
-        stats_text = "\n".join([
-            f"Statistical Analysis:",
-            f"Mean: {stats['mean']:.2f}",
-            f"Median: {stats['median']:.2f}",
-            f"Std Dev: {stats['std']:.2f}",
-            f"Min: {stats['min']:.2f}",
-            f"Max: {stats['max']:.2f}",
-            f"Q1: {stats['q1']:.2f}",
-            f"Q3: {stats['q3']:.2f}",
-            f"IQR: {stats['iqr']:.2f}"
-        ])
-        ax2.text(0, 0.7, stats_text, fontsize=10, verticalalignment='top')
+        # 获取图表的边界框  
+        bbox = ax.get_position()  
         
-        # 添加标题
-        plt.suptitle(f'Bandwidth Analysis (ft={self.ft_value}, thre={self.thre_value}, {self.version})')
+        # 在右上角添加文本框  
+        plt.text(bbox.x1 + 0.02, bbox.y1, stats_text,  
+                fontsize=9,  
+                verticalalignment='top',  
+                bbox=dict(facecolor='white', alpha=0.8, edgecolor='none', pad=5))  
         
-        # 保存图片
-        plt.tight_layout()
-        plt.savefig(self.png_file, dpi=300, bbox_inches='tight')
-        plt.close()
+        # 添加标题  
+        plt.suptitle(f'Bandwidth Analysis (ft={self.ft_value}, thre={self.thre_value}, {self.version})')  
+        
+        # 调整布局以确保统计信息可见  
+        plt.subplots_adjust(right=0.85)  
+        
+        # 保存图片  
+        plt.savefig(self.png_file, dpi=300, bbox_inches='tight')  
+        plt.close()  
 
     def process_data(self):
         """主处理函数"""
@@ -114,12 +118,13 @@ class BandwidthAnalyzer:
         for key, value in stats.items():
             print(f"{key}: {value:.2f}")
 
+# 设置参数
+ft_value = 1
+thre_value = 2
+version = "v1"
+
 # 使用示例
 if __name__ == "__main__":
-    # 设置参数
-    ft_value = 1
-    thre_value = 2
-    version = "v1"
     
     # 创建分析器实例并处理数据
     analyzer = BandwidthAnalyzer(ft_value, thre_value, version)
