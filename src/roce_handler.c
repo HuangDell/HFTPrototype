@@ -3,6 +3,7 @@
 #include <rte_ip.h>
 #include <rte_ethdev.h>
 #include <rte_udp.h>
+static int64_t _count=0;
 
 
 /* pfc packet header within eth hdr */
@@ -106,7 +107,8 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
         printf("RoCE Response Send Failed.\n");  
     }  
     rte_pktmbuf_free(pkt);  
-    printf("A PFC Send\n");
-
+    _count++;
+    if(_count%10000==0)
+     printf("%ld PFC Send\n",_count);
     return 0;  
 }

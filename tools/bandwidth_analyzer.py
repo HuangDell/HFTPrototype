@@ -78,11 +78,6 @@ class BandwidthAnalyzer:
                     capprops={'color': 'darkblue',           # 须线末端颜色  
                             'linewidth': 2})                 # 须线末端宽度  
         
-        # 设置坐标轴标签和标题  
-        ax.set_title('Bandwidth Average Distribution',   
-                    fontsize=14,   
-                    pad=20,  
-                    fontweight='bold')  
         ax.set_ylabel('Bandwidth (MB/sec)',   
                     fontsize=12,   
                     fontweight='bold')  
@@ -97,7 +92,7 @@ class BandwidthAnalyzer:
         
         # 准备统计信息文本  
         stats_text = "\n".join([  
-            f"📊 Statistical Analysis:",  
+            f"Statistical Analysis:",  
             f"━━━━━━━━━━━━━━━━━━",  
             f"Mean: {stats['mean']:.2f}",  
             f"Median: {stats['median']:.2f}",  
@@ -111,7 +106,7 @@ class BandwidthAnalyzer:
         ])  
         
         # 在右上角添加美化的文本框  
-        ax.text(0.98, 0.98, stats_text,  
+        ax.text(0.80, 0.98, stats_text,  
                 transform=ax.transAxes,  
                 fontsize=10,  
                 verticalalignment='top',  
@@ -119,14 +114,13 @@ class BandwidthAnalyzer:
                 bbox=dict(facecolor='white',  
                         alpha=0.9,  
                         edgecolor='lightgray',  
-                        boxstyle='round,pad=0.8',  
-                        shadow=True))  
+                        boxstyle='round,pad=0.8'))  
         
-        # # 添加主标题  
-        # plt.suptitle(f'Bandwidth Performance Analysis\n(ft={self.ft_value}, thre={self.thre_value}, {self.version})',  
-        #             fontsize=16,  
-        #             fontweight='bold',  
-        #             y=1.05)  
+        # 添加主标题  
+        plt.suptitle(f'Bandwidth Performance Analysis\n(flowlet timeout={self.ft_value}, threshold={self.thre_value}, {self.version})',  
+                    fontsize=16,  
+                    fontweight='bold',  
+                    y=1.05)  
         
         # 调整布局  
         plt.tight_layout()  

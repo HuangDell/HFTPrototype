@@ -196,7 +196,7 @@ def main():
         time_gaps = analyzer.calculate_time_gaps(mac_addresses,min_gap=200)  
         
         # 生成图表  
-        analyzer.plot_time_gaps(time_gaps, output_file=output_file,sample_size=100)  
+        analyzer.plot_time_gaps(time_gaps, output_file=output_file,start_idx=10200,sample_size=200)  
         
         logger.info("Analysis completed successfully")  
         
