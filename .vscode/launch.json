@@ -6,7 +6,7 @@
             "name": "DPDK Debug",  
             "type": "cppdbg",  
             "request": "launch",  
-            "program": "${workspaceFolder}/build/Prototype",  
+            "program": "${workspaceFolder}/build/Prototype-debug",  
             "args": [],  
             "stopAtEntry": false,  
             "cwd": "${workspaceFolder}",  

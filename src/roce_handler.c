@@ -60,10 +60,10 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
                     ((uint64_t)addr[5]);  
 
     if(cur_timestamp-last_timestamp<TIME_GAP || cur_timestamp-last_timestamp>FLOWLET_TIMEOUT){
+        last_timestamp=cur_timestamp;
         return 0;
     }
     uint16_t stop_time = 1+FLOWLET_TIMEOUT-(cur_timestamp-last_timestamp);
-    printf("stop_time: %d\n",stop_time);
     last_timestamp=cur_timestamp;
 
     // 分配新的mbuf用于RoCE响应  
@@ -108,7 +108,7 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
     }  
     rte_pktmbuf_free(pkt);  
     _count++;
-    if(_count%10000==0)
-     printf("%ld PFC Send\n",_count);
+    if(_count%100==0)
+        printf("%ld PFC Send\n",_count);
     return 0;  
 }

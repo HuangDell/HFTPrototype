@@ -18,6 +18,8 @@ version = "v1"  # 可以根据需要修改
 RESOURCES_DIR = "./resources/prototype"  
 FILENAME = f"prototype_ft_{ft_value}_thre_{thre_value}_{version}.log"
 LOG_FILE = os.path.join(RESOURCES_DIR, FILENAME)  
+MODE = "ib_send_lat"
+wait_time = None
 
 # 获取主机名
 hostname = socket.gethostname()
@@ -37,9 +39,12 @@ print(f"Log file: {LOG_FILE}")
 while restart_count < MAX_RESTARTS:
     # 根据主机名构建不同的命令
     if hostname == "FNIL-2022DEC-GPU-7":
-        cmd = ["sudo", "ib_send_bw", "-d", "mlx5_1", "-n", str(REPEAT_COUNT)]
+        cmd = ["sudo", MODE, "-d", "mlx5_1", "-n", str(REPEAT_COUNT)]
+        wait_time = 1
+
     elif hostname == "FNIL-2022DEC-GPU-8":
-        cmd = ["sudo", "ib_send_bw", "10.10.10.4", "-n", str(REPEAT_COUNT)]
+        cmd = ["sudo", MODE, "10.10.10.4", "-n", str(REPEAT_COUNT)]
+        wait_time = 3
     else:
         message = f"Unsupported hostname: {hostname}"
         print(message)
@@ -72,10 +77,9 @@ while restart_count < MAX_RESTARTS:
         break
     
     # 应用退出后，输出重启信息到日志
-    message = f"Application exited at {datetime.now()}. Restart count: {restart_count}/{MAX_RESTARTS}. Waiting 1 second before restart..."
+    message = f"Application exited at {datetime.now()}. Restart count: {restart_count}/{MAX_RESTARTS}. Waiting {wait_time} second before restart..."
     print(message)
     with open(LOG_FILE, 'a') as log:
         log.write(message + '\n')
     
-    # 等待1秒
-    time.sleep(1)
+    time.sleep(wait_time)

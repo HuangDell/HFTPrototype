@@ -1,5 +1,6 @@
 # binary name  
 APP = Prototype  
+APP_DEBUG = Prototype-debug
 
 # all source are stored in SRCS-y  
 SRCS-y := $(wildcard src/*.c)  
@@ -30,14 +31,16 @@ all: build/$(APP)
 .PHONY: all debug clean  
 
 debug: CFLAGS := $(CFLAGS_DEBUG)  
-debug: build/$(APP)  
+debug: build/$(APP_DEBUG)
 
 build/$(APP): $(SRCS-y) Makefile $(PC_FILE) | build  
+	$(CC) $(CFLAGS) $(SRCS-y) -o $@ $(LDFLAGS)  
+
+build/$(APP_DEBUG): $(SRCS-y) Makefile $(PC_FILE) | build  
 	$(CC) $(CFLAGS) $(SRCS-y) -o $@ $(LDFLAGS)  
 
 build:  
 	@mkdir -p $@  
 
 clean:  
-	rm -f build/$(APP)  
-	test -d build && rmdir -p build || true
+	rm -rf build
