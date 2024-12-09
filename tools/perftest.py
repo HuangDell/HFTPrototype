@@ -7,12 +7,13 @@ from datetime import datetime
 # 设置参数
 MAX_RESTARTS = 30
 REPEAT_COUNT = 10000  # -n 参数的值
+PACKET_SIZE = 65536
 restart_count = 0
 
 # 文件名参数
-ft_value = 1  # 可以根据需要修改
-thre_value = 2  # 可以根据需要修改
-version = "v1"  # 可以根据需要修改
+ft_value = 0  # 可以根据需要修改
+thre_value = 0  # 可以根据需要修改
+version = "v3"  # 可以根据需要修改
 
 
 RESOURCES_DIR = "./resources/prototype/" +version 
@@ -39,11 +40,11 @@ print(f"Log file: {LOG_FILE}")
 while restart_count < MAX_RESTARTS:
     # 根据主机名构建不同的命令
     if hostname == "FNIL-2022DEC-GPU-7":
-        cmd = ["sudo", MODE, "-d", "mlx5_1", "-n", str(REPEAT_COUNT)]
+        cmd = ["sudo", MODE, "-d", "mlx5_1", "-n", str(REPEAT_COUNT),"-s", str(PACKET_SIZE)]
         wait_time = 1
 
     elif hostname == "FNIL-2022DEC-GPU-8":
-        cmd = ["sudo", MODE, "10.10.10.4", "-n", str(REPEAT_COUNT)]
+        cmd = ["sudo", MODE, "10.10.10.4", "-n", str(REPEAT_COUNT),"-s", str(PACKET_SIZE)]
         wait_time = 3
     else:
         message = f"Unsupported hostname: {hostname}"
