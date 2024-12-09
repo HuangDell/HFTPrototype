@@ -15,7 +15,7 @@ thre_value = 2  # 可以根据需要修改
 version = "v1"  # 可以根据需要修改
 
 
-RESOURCES_DIR = "./resources/prototype"  
+RESOURCES_DIR = "./resources/prototype/" +version 
 FILENAME = f"prototype_ft_{ft_value}_thre_{thre_value}_{version}.log"
 LOG_FILE = os.path.join(RESOURCES_DIR, FILENAME)  
 MODE = "ib_send_lat"

@@ -12,6 +12,11 @@ class BandwidthAnalyzer:
         self.version = version
         self.resources_dir = "./resources/prototype"
         self.base_filename = f"prototype_ft_{ft_value}_thre_{thre_value}_{version}"
+        self.pattern = r'65536\s+\d+\s+(\d+\.\d+)\s+(\d+\.\d+)'
+
+        if version == 'v3':
+            self.pattern = r'2\s+\d+\s+(\d+\.\d+)\s+(\d+\.\d+)'
+            
         
         # 确保目录存在
         os.makedirs(self.resources_dir, exist_ok=True)
@@ -28,8 +33,7 @@ class BandwidthAnalyzer:
         
         with open(self.log_file, 'r') as f:
             content = f.read()
-            pattern = r'65536\s+\d+\s+(\d+\.\d+)\s+(\d+\.\d+)'
-            matches = re.finditer(pattern, content)
+            matches = re.finditer(self.pattern, content)
             
             for match in matches:
                 peak_bw.append(float(match.group(1)))
@@ -136,17 +140,9 @@ class BandwidthAnalyzer:
 
     def process_data(self):
         """主处理函数"""
-        # 检查是否存在npy文件
-        if os.path.exists(self.npy_file):
-            print(f"Loading existing data from {self.npy_file}")
-            data = np.load(self.npy_file, allow_pickle=True).item()
-            peak_bw = data['peak_bw']
-            average_bw = data['average_bw']
-        else:
-            print(f"Extracting data from {self.log_file}")
-            peak_bw, average_bw = self.extract_bandwidth_data()
-            # 保存数据
-            np.save(self.npy_file, {'peak_bw': peak_bw, 'average_bw': average_bw})
+        print(f"Extracting data from {self.log_file}")
+        peak_bw, average_bw = self.extract_bandwidth_data()
+        # 保存数据
 
         # 计算统计数据
         stats = self.get_statistics(average_bw)
