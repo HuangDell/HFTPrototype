@@ -7,7 +7,8 @@ from typing import Dict, Tuple
 
 class BandwidthAnalyzer:  
     def __init__(self, ft_value: int, thre_value: int, version: str):  
-        # 前面的代码保持不变...  
+        self.ft_value = ft_value
+        self.thre_value = thre_value
         self.version = version  
         self.resources_dir = "./resources/prototype/"+version  
         self.base_filename = f"prototype_ft_{ft_value}_thre_{thre_value}_{version}"  
