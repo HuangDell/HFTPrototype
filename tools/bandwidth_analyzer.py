@@ -15,7 +15,7 @@ class BandwidthAnalyzer:
         self.pattern = r'65536\s+\d+\s+\d+\.\d+\s+(\d+\.\d+)'  
 
         if version == 'v3':  
-            self.pattern = r'2\s+\d+\s+\d+\.\d+\s+\d+\.\d+\s+\d+\.\d+\s+(\d+\.\d+)\s+\d+\.\d+\s+(\d+\.\d+)\s+(\d+\.\d+)'  
+            self.pattern = r'65536\s+\d+\s+\d+\.\d+\s+\d+\.\d+\s+\d+\.\d+\s+(\d+\.\d+)\s+\d+\.\d+\s+(\d+\.\d+)\s+(\d+\.\d+)'  
         
         os.makedirs(self.resources_dir, exist_ok=True)  
         
