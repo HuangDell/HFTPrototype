@@ -32,9 +32,22 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
     // 获取以太网头部  
     eth_hdr = rte_pktmbuf_mtod(pkt, struct rte_ether_hdr *);  
     
-    // 获取RoCE头部  
+    // 获取ipv4头部  
     ipv4_hdr = rte_pktmbuf_mtod_offset(pkt, struct rte_ipv4_hdr *,   
                                       sizeof(struct rte_ether_hdr));  
+
+    uint8_t dscp = (ipv4_hdr->type_of_service >> 2) & 0x3F;
+
+        // 根据DSCP值获取优先级队列  
+    uint8_t prio;  
+    if (dscp <= 7) prio = 0;  
+    else if (dscp <= 15) prio = 1;  
+    else if (dscp <= 23) prio = 2;  
+    else if (dscp <= 31) prio = 3;  
+    else if (dscp <= 39) prio = 4;  
+    else if (dscp <= 47) prio = 5;  
+    else if (dscp <= 55) prio = 6;  
+    else prio = 7;  
 
     // 跳过TCP包
     if (ipv4_hdr->next_proto_id==IPPROTO_TCP){
@@ -93,9 +106,13 @@ int handle_roce_packet(struct rte_mempool *endsys_pktmbuf_pool, struct rte_mbuf 
     // 构建PFC响应头部  
     pfc_hdr = (struct pfc_header *)(response_eth_hdr + 1);
     pfc_hdr->opcode = htons(0x0101);
-    pfc_hdr->pev = htons(0x00ff);
+    pfc_hdr->pev = htons(1<<prio);
     for(int i=0;i<8;i++)
-        pfc_hdr->time[i] = htons((uint16_t)(stop_time/QUANTA_DURATION_NS));
+        if (i == prio) {  
+            pfc_hdr->time[i] = htons((uint16_t)(stop_time/QUANTA_DURATION_NS));  
+        } else {  
+            pfc_hdr->time[i] = 0;  
+        }  
 
     // pfc_hdr->time[0] = 1;
     for(int i=0;i<26;i++)
