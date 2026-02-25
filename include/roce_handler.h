@@ -10,7 +10,9 @@
 
 #define FLOWLET_TIMEOUT 5000
 
-#define TIME_GAP 2500
+#define TIME_GAP 3500
+
+//#define USE_DSCP_VALUE
 
 static uint32_t local_ip;
 static uint64_t last_timestamp;
